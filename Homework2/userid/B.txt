@@ -1,31 +1,40 @@
-s0: 
-s1: 
-s2: 
-s3: 
-s4: 
-s5: 
-s6: 
-s7: 
-s8: 
-s9: 
-s10: 
-s11: 
-s12: 
-s13: 
-s14: 
-s15: 
-s16: 
-s17: 
-s18: 
-s19: 
-s20: 
-s21: 
-s22: 
-s23: 
-s24: 
-s25: 
-s26: 
-s27: 
-s28: 
-s29: 
-s30: 
+s0: XYZ
+s1: Ok
+s2: Err
+s3: Base::f2
+s4: Base::f3
+s5: Base::f4
+s6: Base::f5
+s7: Err
+s8: Base::foo0
+Base::f0
+s9: Base::foo1
+Base::f1
+s10: Base::foo2
+Base::f2
+s11: Ok
+s12: Err
+s13: Base::f2
+s14: Derived::f3
+s15: Base::f4
+s16: Derived::f5
+s17: Err
+s18: Base::foo0
+Base::f0
+s19: Base::foo1
+Base::f1
+s20: Base::foo2
+Base::f2
+s21: Ok
+s22: Err
+s23: Base::f2
+s24: Derived::f3
+s25: Base::f4
+s26: Derived::f5
+s27: Derived::f6
+s28: Base::foo0
+Base::f0
+s29: Base::foo1
+Base::f1
+s30: Base::foo2
+Base::f2
