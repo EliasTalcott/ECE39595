@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class ComparableArray {
 
    protected int[ ] ary;
@@ -6,12 +8,7 @@ public class ComparableArray {
       ary = data;
    }
 
-   /*
-    * do a deep copy of source, i.e., the source ary
-    * and the ary of the object being constructed
-    * should contain the same values but be different
-    * arrays occupying different storage.
-   */
+   // Do a deep copy of source
    public ComparableArray(ComparableArray source) {
       ary = new int[source.getLength( )];
       for (int i = 0; i < ary.length; i++) {
@@ -20,7 +17,7 @@ public class ComparableArray {
    }
 
    /* 
-\   * return -1 if this < a, 0 if this equals a, 1 if this > a
+    * return -1 if this < a, 0 if this equals a, 1 if this > a
     * based on the values of the ary members of this and a.
     *
     * Given an array x, x[0] = v0, x[0] = v2, ..., x[n] = vN
@@ -47,25 +44,39 @@ public class ComparableArray {
     * this.ary = [0, 1, 2, 0, 0]  and a.ary = [0, 1, 2], this == a by (6) 
     * this.ary = [0, 4, 1]  and a.ary = [0, 1, 1, 1, 1], this > a by (4), (k+1 = 1) 
     */
-   public int compareTo(ComparableArray a); 
-         
-   public int getElement(int i);
-      return ary[i];
-   } 
 
-   // return the length of ary
-   public int getLength( );
+   public int compareTo(ComparableArray a) {
+      // Find the length of the shorter array
+      int len_this = getLength();
+      int len_a = a.ary.length;
+      int len = min(len_this, len_a);
 
-   // set all elements of ary to n
-   public void makeNumber(int n);
+      // Compare the arrays up to len
+      for(int i = 0; i < len; i++) {
+         if (this.ary[i] > a.ary[i]) return 1;
+         if (this.ary[i] < a.ary[i]) return -1;
+      }
 
-   // print out the elements of ary
-   public String toString( ) {
-   
-   private int min(int i, int j) {
-      if (j < i) return i;
-      return i;
+      // If arrays are equal up to len, check if longer array has trailing nonzero values
+      if (len_this > len_a && trailingNonZero(this, len) != 0) return 1;
+      if (len_this < len_a && trailingNonZero(a, len) != 0) return -1;
+      return 0;
    }
+
+   // Get an element in ary at index i
+   public int getElement(int i) { return ary[i]; }
+
+   // Return the length of ary
+   public int getLength( ) { return ary.length; }
+
+   // Set all elements of ary to n
+   public void makeNumber(int n) { Arrays.fill(ary, n); }
+
+   // Print out the elements of ary
+   public String toString( ) { return Arrays.toString(this.ary); }
+
+   // Find the minimum of integers i and j
+   private int min(int i, int j) { return Math.min(i, j); }
 
    // I used this for compareTo, for cases 5 and 6
    private int trailingNonZero(ComparableArray a, int i) {

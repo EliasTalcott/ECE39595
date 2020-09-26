@@ -1,10 +1,15 @@
 public class IntArray extends ComparableArray {
 
+   public IntArray(int[] a) {
+      super(a);
+   }
 
-   // create constructors as necessary
+   public IntArray(ComparableArray source) {
+      super(source);
+   }
 
    /*
-    * haschCode( ) should return an int based on the values of the object fields
+    * hashCode( ) should return an int based on the values of the object fields
     * equals( ) should return true if two objects are equal based on the values of the
     * object fields.  Given IntArray objects i1, i2 and i3, it must also be the case 
     * that 
@@ -20,7 +25,22 @@ public class IntArray extends ComparableArray {
     * As long as these rules are followed, you can implement hashCode( ) and equals( )
     * any way you want.
     */
-   public int hashCode( );
 
-   public boolean equals(IntArray a);
+   @Override
+   public int hashCode( ) {
+      int hash = 0;
+      for(int i = 0; i < this.ary.length; i++) {
+         hash += getElement(i) * ((i + 1) ^ 2) + i;
+      }
+      return hash;
+   }
+
+   @Override
+   public boolean equals(Object a) {
+      if (!(a instanceof ComparableArray)) return false;
+      ComparableArray ai = (ComparableArray) a;
+      int comp = compareTo(ai);
+      if (comp == 0) return true;
+      return false;
+   }
 }
