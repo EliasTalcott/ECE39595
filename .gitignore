@@ -3,4 +3,4 @@
 *.iml
 
 # Bytecode files
-*/out/
+out/
