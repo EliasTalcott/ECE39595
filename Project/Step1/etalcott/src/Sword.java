@@ -1,4 +1,4 @@
-import javafx.util.Pair;
+package src;
 
 public class Sword extends Item {
     public Sword(String _name, int _room, int _serial) {

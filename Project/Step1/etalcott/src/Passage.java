@@ -1,5 +1,6 @@
-import javafx.util.Pair;
+package src;
 
+import javafx.util.Pair;
 import java.util.ArrayList;
 
 public class Passage extends Structure {

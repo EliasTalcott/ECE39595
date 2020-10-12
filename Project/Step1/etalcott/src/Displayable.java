@@ -1,3 +1,5 @@
+package src;
+
 public class Displayable {
     private int visible = 1;
     private int posX;

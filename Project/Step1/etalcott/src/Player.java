@@ -1,3 +1,5 @@
+package src;
+
 public class Player extends Creature {
     private int hpMoves;
     private Sword weapon;

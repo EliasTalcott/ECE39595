@@ -1,3 +1,5 @@
+package src;
+
 public class Action {
     private String name;
     private String type;
