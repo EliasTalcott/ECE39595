@@ -27,7 +27,7 @@ public class Test {
             DungeonXMLHandler handler = new DungeonXMLHandler();
             // Parse the XML file given by fileName
             saxParser.parse(new File(fileName), handler);
-            // Get and print dungeon from XML parser
+            // Get dungeon from XML parser
             Dungeon dungeon = handler.getDungeon();
         }
         catch (ParserConfigurationException | SAXException | IOException e) {

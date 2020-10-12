@@ -384,24 +384,4 @@ public class DungeonXMLHandler extends DefaultHandler {
             System.out.flush();
         }
     }
-
-//    @Override
-//    public String toString() {
-//        String str = "StudentsXMLHandler\n";
-//        str += "   maxStudents: " + maxStudents + "\n";
-//        str += "   studentCount: " + studentCount + "\n";
-//        for (Student student : students) {
-//            str += student.toString() + "\n";
-//        }
-//        str += "   studentBeingParsed: " + studentBeingParsed.toString() + "\n";
-//        str += "   activityBeingParsed: " + activityBeingParsed.toString() + "\n";
-//        str += "   bInstructor: " + bInstructor + "\n";
-//        str += "   bCredit: " + bInstructor + "\n";
-//        str += "   bName: " + bInstructor + "\n";
-//        str += "   bNumber: " + bInstructor + "\n";
-//        str += "   bLocation: " + bInstructor + "\n";
-//        str += "   bMeetingTime: " + bInstructor + "\n";
-//        str += "   bMeetingDay: " + bInstructor + "\n";
-//        return str;
-//    }
 }
