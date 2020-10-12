@@ -59,6 +59,7 @@ public class DungeonXMLHandler extends DefaultHandler {
     private boolean bActionMessage = false;
     private boolean bActionIntValue = false;
     private boolean bActionCharValue = false;
+    private boolean bItemIntValue = false;
 
     // Used by code outside the class to get the dungeon that has been constructed
     public Dungeon getDungeon() { return dungeon; }
@@ -90,6 +91,7 @@ public class DungeonXMLHandler extends DefaultHandler {
             int gameHeight = Integer.parseInt(attributes.getValue("gameHeight"));
             int bottomHeight = Integer.parseInt(attributes.getValue("bottomHeight"));
             dungeon = new Dungeon(name, width, topHeight, gameHeight, bottomHeight);
+            System.out.println("Creating dungeon. Name: " + name);
         }
         // Structures
         else if (qName.equalsIgnoreCase("Room")) {
@@ -97,6 +99,7 @@ public class DungeonXMLHandler extends DefaultHandler {
             Room room = new Room(id);
             dungeon.addRoom(room);
             roomBeingParsed = room;
+            System.out.println("Creating room. ID: " + id);
         }
         else if (qName.equalsIgnoreCase("Passage")) {
             String id1 = attributes.getValue("room1");
@@ -104,6 +107,7 @@ public class DungeonXMLHandler extends DefaultHandler {
             Passage passage = new Passage(id1, id2);
             dungeon.addPassage(passage);
             passageBeingParsed = passage;
+            System.out.println("Creating passage. Room1: " + id1 + " Room2: " + id2);
         }
         // Creatures
         else if (qName.equalsIgnoreCase("Monster")) {
@@ -113,6 +117,7 @@ public class DungeonXMLHandler extends DefaultHandler {
             Monster monster = new Monster(name, room, serial);
             roomBeingParsed.addCreature(monster);
             monsterBeingParsed = monster;
+            System.out.println("Creating monster. Name: " + name + " room: " + room + " serial: " + serial);
         }
         else if (qName.equalsIgnoreCase("Player")) {
             int room = Integer.parseInt(attributes.getValue("room"));
@@ -120,6 +125,7 @@ public class DungeonXMLHandler extends DefaultHandler {
             Player player = new Player(room, serial);
             roomBeingParsed.addCreature(player);
             playerBeingParsed = player;
+            System.out.println("Creating player. Room: " + room + " serial: " + serial);
         }
         // Items
         else if (qName.equalsIgnoreCase("Scroll")) {
@@ -129,6 +135,7 @@ public class DungeonXMLHandler extends DefaultHandler {
             Scroll scroll = new Scroll(name, room, serial);
             roomBeingParsed.addItem(scroll);
             itemBeingParsed = scroll;
+            System.out.println("Creating scroll. Name: " + name + " room: " + room + " serial: " + serial);
         }
         else if (qName.equalsIgnoreCase("Armor")) {
             String name = attributes.getValue("name");
@@ -137,6 +144,7 @@ public class DungeonXMLHandler extends DefaultHandler {
             Armor armor = new Armor(name, room, serial);
             roomBeingParsed.addItem(armor);
             itemBeingParsed = armor;
+            System.out.println("Creating armor. Name: " + name + " room: " + room + " serial: " + serial);
         }
         else if (qName.equalsIgnoreCase("Sword")) {
             String name = attributes.getValue("name");
@@ -145,6 +153,7 @@ public class DungeonXMLHandler extends DefaultHandler {
             Sword sword = new Sword(name, room, serial);
             roomBeingParsed.addItem(sword);
             itemBeingParsed = sword;
+            System.out.println("Creating sword. Name: " + name + " room: " + room + " serial: " + serial);
         }
         // Actions
         else if (qName.equalsIgnoreCase("CreatureAction")) {
@@ -158,6 +167,8 @@ public class DungeonXMLHandler extends DefaultHandler {
                 playerBeingParsed.addAction(creatureAction);
             }
             actionBeingParsed = creatureAction;
+            System.out.println("CreatureAction: " + name + " type: " + type);
+
         }
         else if (qName.equalsIgnoreCase("ItemAction")) {
             String name = attributes.getValue("name");
@@ -165,6 +176,8 @@ public class DungeonXMLHandler extends DefaultHandler {
             ItemAction itemAction = new ItemAction(name, type);
             itemBeingParsed.addAction(itemAction);
             actionBeingParsed = itemAction;
+            System.out.println("ItemAction: " + name + " type: " + type);
+
         }
 
         // Add attributes to existing objects
@@ -204,6 +217,9 @@ public class DungeonXMLHandler extends DefaultHandler {
         else if (qName.equalsIgnoreCase("actionCharValue")) {
             bActionCharValue = true;
         }
+        else if (qName.equalsIgnoreCase("itemIntValue")) {
+            bItemIntValue = true;
+        }
 
         // Handle "do nothing" tags and unrecognized tags
         else if (qName.equalsIgnoreCase("Rooms") || qName.equalsIgnoreCase("Passages")) {
@@ -235,6 +251,7 @@ public class DungeonXMLHandler extends DefaultHandler {
                 passageBeingParsed.setVisible(Integer.parseInt(data.toString()));
             }
             bVisible = false;
+            System.out.println("Visible: " + data);
         }
         else if (bPosX) {
             if (itemBeingParsed != null) {
@@ -253,6 +270,7 @@ public class DungeonXMLHandler extends DefaultHandler {
                 passageBeingParsed.setPosX(Integer.parseInt(data.toString()));
             }
             bPosX = false;
+            System.out.println("posX: " + data);
         }
         else if (bPosY) {
             if (itemBeingParsed != null) {
@@ -271,18 +289,22 @@ public class DungeonXMLHandler extends DefaultHandler {
                 passageBeingParsed.setPosY(Integer.parseInt(data.toString()));
             }
             bPosY = false;
+            System.out.println("posY: " + data);
         }
         else if (bWidth) {
             roomBeingParsed.setWidth(Integer.parseInt(data.toString()));
             bWidth = false;
+            System.out.println("Width: " + data);
         }
         else if (bHeight) {
             roomBeingParsed.setHeight(Integer.parseInt(data.toString()));
             bHeight = false;
+            System.out.println("Height: " + data);
         }
         else if (bType) {
             monsterBeingParsed.setType(data.toString().charAt(0));
             bType = false;
+            System.out.println("Type: " + data);
         }
         else if (bHp) {
             if (monsterBeingParsed != null) {
@@ -292,10 +314,12 @@ public class DungeonXMLHandler extends DefaultHandler {
                 playerBeingParsed.setHp(Integer.parseInt(data.toString()));
             }
             bHp = false;
+            System.out.println("HP: " + data);
         }
         else if (bHpMoves) {
             playerBeingParsed.setHpMoves(Integer.parseInt(data.toString()));
             bHpMoves = false;
+            System.out.println("HP moves: " + data);
         }
         else if (bMaxHit) {
             if (monsterBeingParsed != null) {
@@ -305,18 +329,27 @@ public class DungeonXMLHandler extends DefaultHandler {
                 playerBeingParsed.setMaxHit(Integer.parseInt(data.toString()));
             }
             bMaxHit = false;
+            System.out.println("Max hit: " + data);
         }
         else if (bActionMessage) {
             actionBeingParsed.setMessage(data.toString());
             bActionMessage = false;
+            System.out.println("Action message: " + data);
         }
         else if (bActionIntValue) {
             actionBeingParsed.setActionIntValue(Integer.parseInt(data.toString()));
             bActionIntValue = false;
+            System.out.println("Action int value: " + data);
         }
         else if (bActionCharValue) {
             actionBeingParsed.setActionCharValue(data.toString().charAt(0));
             bActionCharValue = false;
+            System.out.println("Action char value: " + data);
+        }
+        else if (bItemIntValue) {
+            itemBeingParsed.setItemIntValue(Integer.parseInt(data.toString()));
+            bItemIntValue = false;
+            System.out.println("Item int value: " + data);
         }
 
         // Change xBeingParsed to null once finished with parsing

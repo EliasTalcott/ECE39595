@@ -8,6 +8,7 @@ public class Item extends Displayable {
     private int serial;
     private Pair<Integer, Integer> id;
     private Creature owner = null;
+    private int itemIntValue;
     private ArrayList<ItemAction> actions;
 
     public Item(String _name, int _room, int _serial) {
@@ -39,6 +40,10 @@ public class Item extends Displayable {
 
     public Creature getOwner() { return owner; }
 
+    public void setItemIntValue(int _itemIntValue) { itemIntValue = _itemIntValue; }
+
+    public int getItemIntValue() { return itemIntValue; }
+
     public void addAction(ItemAction action) { actions.add(action); }
 
     public ArrayList<ItemAction> getActions() { return actions; }
@@ -49,6 +54,7 @@ public class Item extends Displayable {
         str += "id: " + id + "\n";
         str += super.toString();
         str += "owner: " + owner + "\n";
+        str += "itemIntValue: " + itemIntValue + "\n";
         str += "actions: " + actions + "\n";
         return str;
     }

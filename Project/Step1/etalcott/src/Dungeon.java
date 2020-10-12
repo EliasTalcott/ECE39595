@@ -1,5 +1,3 @@
-import sun.security.util.ArrayUtil;
-
 import java.util.ArrayList;
 
 public class Dungeon {
@@ -32,8 +30,6 @@ public class Dungeon {
     public void setGameHeight(int _gameHeight) { gameHeight = _gameHeight; }
 
     public void setBottomHeight(int _bottomHeight) { bottomHeight = _bottomHeight; }
-
-    public String getDungeon(String name, int width, int gameHeight) { return "getDungeon"; }
 
     public void addRoom(Room room) { rooms.add(room); }
 
