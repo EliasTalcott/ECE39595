@@ -1,23 +1,11 @@
 public class Displayable {
-    private int visible;
+    private int visible = 1;
     private int posX;
     private int posY;
 
-    public Displayable(int _visible, int _posX, int _posY) {
-        visible = _visible;
-        posX = _posX;
-        posY = _posY;
-    }
+    public Displayable() { }
 
-    public Displayable(int _posX, int _posY) {
-        visible = 1;
-        posX = _posX;
-        posY = _posY;
-    }
-
-    public void setInvisible() { visible = 0; }
-
-    public void setVisible() { visible = 1; }
+    public void setVisible(int _visible) { visible = _visible; }
 
     public int getVisible() { return visible; }
 

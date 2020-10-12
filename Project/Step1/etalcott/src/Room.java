@@ -1,4 +1,3 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Room extends Structure {
@@ -8,16 +7,11 @@ public class Room extends Structure {
     private ArrayList<Creature> creatures;
     private ArrayList<Item> items;
 
-    public Room(int _visible, int _posX, int _posY, String _id, int _width, int _height) {
-        super(_visible, _posX, _posY);
+    public Room(String _id) {
+        super();
         id = Integer.parseInt(_id);
-        width = _width;
-        height = _height;
-    }
-
-    public Room(int _posX, int _posY, String _id) {
-        super(_posX, _posY);
-        id = Integer.parseInt(_id);
+        creatures = new ArrayList<>();
+        items = new ArrayList<>();
     }
 
     public void setId(int _id) { id = _id; }
@@ -47,6 +41,8 @@ public class Room extends Structure {
         str += super.toString();
         str += "width: " + width + "\n";
         str += "height: " + height + "\n";
+        str += "creatures: " + creatures + "\n";
+        str += "items: " + items + "\n";
         return str;
     }
 }

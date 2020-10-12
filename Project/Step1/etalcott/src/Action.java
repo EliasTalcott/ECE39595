@@ -5,12 +5,9 @@ public class Action {
     private int actionIntValue;
     private char actionCharValue;
 
-    public Action(String _name, String _type, String _message, int _actionIntValue, char _actionCharValue) {
+    public Action(String _name, String _type) {
         name = _name;
         type = _type;
-        message = _message;
-        actionIntValue = _actionIntValue;
-        actionCharValue = _actionCharValue;
     }
 
     public void setName(String _name) { name = _name; }

@@ -7,25 +7,14 @@ public class Creature extends Displayable {
     private char type;
     private int hp;
     private int maxHit;
+    private ArrayList<CreatureAction> actions;
 
-    public Creature(int _visible, int _posX, int _posY, String _name, int _room, int _serial, char _type, int _hp, int _maxHit) {
-        super(_visible, _posX, _posY);
+    public Creature(String _name, int _room, int _serial) {
+        super();
         name = _name;
         room = _room;
         serial = _serial;
-        type = _type;
-        hp = _hp;
-        maxHit = _maxHit;
-    }
-
-    public Creature(int _posX, int _posY, String _name, int _room, int _serial, char _type, int _hp, int _maxHit) {
-        super(_posX, _posY);
-        name = _name;
-        room = _room;
-        serial = _serial;
-        type = _type;
-        hp = _hp;
-        maxHit = _maxHit;
+        actions = new ArrayList<>();
     }
 
     public void setName(String _name) { name = _name; }
@@ -52,6 +41,10 @@ public class Creature extends Displayable {
 
     public int getMaxHit() { return maxHit; }
 
+    public void addAction(CreatureAction action) { actions.add(action); }
+
+    public ArrayList<CreatureAction> getActions() { return actions; }
+
     @Override
     public String toString() {
         String str = "name: " + name + "\n";
@@ -61,6 +54,7 @@ public class Creature extends Displayable {
         str += "type: " + type + "\n";
         str += "hp: " + hp + "\n";
         str += "maxHit: " + maxHit + "\n";
+        str += "actions: " + actions + "\n";
         return str;
     }
 }

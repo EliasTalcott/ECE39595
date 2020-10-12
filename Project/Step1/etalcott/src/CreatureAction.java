@@ -1,6 +1,6 @@
 public class CreatureAction extends Action {
-    public CreatureAction(String _name, String _type, String _message, int _actionIntValue, char _actionCharValue) {
-        super(_name, _type, _message, _actionIntValue, _actionCharValue);
+    public CreatureAction(String _name, String _type) {
+        super(_name, _type);
     }
 
     @Override

@@ -1,4 +1,3 @@
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -24,16 +23,18 @@ public class DungeonXMLHandler extends DefaultHandler {
     // an ArrayList in your project.
     private Dungeon dungeon;
 
-    // The XML file contains a list of Students, and within each
-    // Student a list of activities (clubs and classes) that the
-    // student participates in.  When the XML file initially
-    // defines a student, many of the fields of the object have
-    // not been filled in.  Additional lines in the XML file
-    // give the values of the fields.  Having access to the
-    // current Student and Activity allows setters on those
+    // The XML file contains a Dungeon and a list of Displayables
+    // and Actions that describe the Dungeon. When the XML file
+    // initially defines one of these objects, many of the fields
+    // have not been filled in. Additional lines in the XML file
+    // give the values of the fields. Having access to the current
+    // Dungeon, Displayable, and Action allows setters on those
     // objects to be called to initialize those fields.
-    private Dungeon dungeonBeingParsed = null;
-    private Displayable displayableBeingParsed = null;
+    private Room roomBeingParsed = null;
+    private Passage passageBeingParsed = null;
+    private Monster monsterBeingParsed = null;
+    private Player playerBeingParsed = null;
+    private Item itemBeingParsed = null;
     private Action actionBeingParsed = null;
 
     // The bX fields here indicate that at corresponding field is
@@ -46,13 +47,18 @@ public class DungeonXMLHandler extends DefaultHandler {
     // in that code we check if bInstructor is set.  If it is,
     // we can extract a string representing the instructor name
     // from the data variable above.
-    private boolean bInstructor = false;
-    private boolean bCredit = false;
-    private boolean bName = false;
-    private boolean bNumber = false;
-    private boolean bLocation = false;
-    private boolean bMeetingTime = false;
-    private boolean bMeetingDay = false;
+    private boolean bVisible = false;
+    private boolean bPosX = false;
+    private boolean bPosY = false;
+    private boolean bWidth = false;
+    private boolean bHeight = false;
+    private boolean bType = false;
+    private boolean bHp = false;
+    private boolean bHpMoves = false;
+    private boolean bMaxHit = false;
+    private boolean bActionMessage = false;
+    private boolean bActionIntValue = false;
+    private boolean bActionCharValue = false;
 
     // Used by code outside the class to get the dungeon that has been constructed
     public Dungeon getDungeon() { return dungeon; }
@@ -76,46 +82,134 @@ public class DungeonXMLHandler extends DefaultHandler {
             System.out.println(CLASSID + ".startElement qName: " + qName);
         }
 
-        if (qName.equalsIgnoreCase("Students")) {
-            maxStudents = Integer.parseInt(attributes.getValue("count"));
-            students = new Student[maxStudents];
-        } else if (qName.equalsIgnoreCase("Student")) {
-            int numActivities = Integer.parseInt(attributes.getValue("numActivities"));
+        // Create new objects
+        if (qName.equalsIgnoreCase("Dungeon")) {
             String name = attributes.getValue("name");
-            Student student = new Student(name, numActivities);
-            addStudent(student);
-            studentBeingParsed = student;
-        } else if (qName.equalsIgnoreCase("Activity")) {
+            int width = Integer.parseInt(attributes.getValue("width"));
+            int topHeight = Integer.parseInt(attributes.getValue("topHeight"));
+            int gameHeight = Integer.parseInt(attributes.getValue("gameHeight"));
+            int bottomHeight = Integer.parseInt(attributes.getValue("bottomHeight"));
+            dungeon = new Dungeon(name, width, topHeight, gameHeight, bottomHeight);
+        }
+        // Structures
+        else if (qName.equalsIgnoreCase("Room")) {
+            String id = attributes.getValue("room");
+            Room room = new Room(id);
+            dungeon.addRoom(room);
+            roomBeingParsed = room;
+        }
+        else if (qName.equalsIgnoreCase("Passage")) {
+            String id1 = attributes.getValue("room1");
+            String id2 = attributes.getValue("room2");
+            Passage passage = new Passage(id1, id2);
+            dungeon.addPassage(passage);
+            passageBeingParsed = passage;
+        }
+        // Creatures
+        else if (qName.equalsIgnoreCase("Monster")) {
+            String name = attributes.getValue("name");
+            int room = Integer.parseInt(attributes.getValue("room"));
+            int serial = Integer.parseInt(attributes.getValue("serial"));
+            Monster monster = new Monster(name, room, serial);
+            roomBeingParsed.addCreature(monster);
+            monsterBeingParsed = monster;
+        }
+        else if (qName.equalsIgnoreCase("Player")) {
+            int room = Integer.parseInt(attributes.getValue("room"));
+            int serial = Integer.parseInt(attributes.getValue("serial"));
+            Player player = new Player(room, serial);
+            roomBeingParsed.addCreature(player);
+            playerBeingParsed = player;
+        }
+        // Items
+        else if (qName.equalsIgnoreCase("Scroll")) {
+            String name = attributes.getValue("name");
+            int room = Integer.parseInt(attributes.getValue("room"));
+            int serial = Integer.parseInt(attributes.getValue("serial"));
+            Scroll scroll = new Scroll(name, room, serial);
+            roomBeingParsed.addItem(scroll);
+            itemBeingParsed = scroll;
+        }
+        else if (qName.equalsIgnoreCase("Armor")) {
+            String name = attributes.getValue("name");
+            int room = Integer.parseInt(attributes.getValue("room"));
+            int serial = Integer.parseInt(attributes.getValue("serial"));
+            Armor armor = new Armor(name, room, serial);
+            roomBeingParsed.addItem(armor);
+            itemBeingParsed = armor;
+        }
+        else if (qName.equalsIgnoreCase("Sword")) {
+            String name = attributes.getValue("name");
+            int room = Integer.parseInt(attributes.getValue("room"));
+            int serial = Integer.parseInt(attributes.getValue("serial"));
+            Sword sword = new Sword(name, room, serial);
+            roomBeingParsed.addItem(sword);
+            itemBeingParsed = sword;
+        }
+        // Actions
+        else if (qName.equalsIgnoreCase("CreatureAction")) {
+            String name = attributes.getValue("name");
             String type = attributes.getValue("type");
-            Activity activity = null;
-            switch (type) {
-                case "course":
-                    activity = new Course();
-                    break;
-                case "club":
-                    activity = new Club();
-                    break;
-                default:
-                    System.out.println("Unknown activity: " + type);
-                    break;
+            CreatureAction creatureAction = new CreatureAction(name, type);
+            if (monsterBeingParsed != null) {
+                monsterBeingParsed.addAction(creatureAction);
             }
-            activityBeingParsed = activity;
-            studentBeingParsed.addActivity(activity);
-        } else if (qName.equalsIgnoreCase("instructor")) {
-            bInstructor = true;
-        } else if (qName.equalsIgnoreCase("credit")) {
-            bCredit = true;
-        } else if (qName.equalsIgnoreCase("name")) {
-            bName = true;
-        } else if (qName.equalsIgnoreCase("meetingTime")) {
-            bMeetingTime = true;
-        } else if (qName.equalsIgnoreCase("meetingDay")) {
-            bMeetingDay = true;
-        } else if (qName.equalsIgnoreCase("number")) {
-            bNumber = true;
-        } else if (qName.equalsIgnoreCase("location")) {
-            bLocation = true;
-        } else {
+            else {
+                playerBeingParsed.addAction(creatureAction);
+            }
+            actionBeingParsed = creatureAction;
+        }
+        else if (qName.equalsIgnoreCase("ItemAction")) {
+            String name = attributes.getValue("name");
+            String type = attributes.getValue("type");
+            ItemAction itemAction = new ItemAction(name, type);
+            itemBeingParsed.addAction(itemAction);
+            actionBeingParsed = itemAction;
+        }
+
+        // Add attributes to existing objects
+        else if (qName.equalsIgnoreCase("visible")) {
+            bVisible = true;
+        }
+        else if (qName.equalsIgnoreCase("posX")) {
+            bPosX = true;
+        }
+        else if (qName.equalsIgnoreCase("posY")) {
+            bPosY = true;
+        }
+        else if (qName.equalsIgnoreCase("width")) {
+            bWidth = true;
+        }
+        else if (qName.equalsIgnoreCase("height")) {
+            bHeight = true;
+        }
+        else if (qName.equalsIgnoreCase("type")) {
+            bType = true;
+        }
+        else if (qName.equalsIgnoreCase("hp")) {
+            bHp = true;
+        }
+        else if (qName.equalsIgnoreCase("hpMoves")) {
+            bHpMoves = true;
+        }
+        else if (qName.equalsIgnoreCase("maxHit")) {
+            bMaxHit = true;
+        }
+        else if (qName.equalsIgnoreCase("actionMessage")) {
+            bActionMessage = true;
+        }
+        else if (qName.equalsIgnoreCase("actionIntValue")) {
+            bActionIntValue = true;
+        }
+        else if (qName.equalsIgnoreCase("actionCharValue")) {
+            bActionCharValue = true;
+        }
+
+        // Handle "do nothing" tags and unrecognized tags
+        else if (qName.equalsIgnoreCase("Rooms") || qName.equalsIgnoreCase("Passages")) {
+            assert true;
+        }
+        else {
             System.out.println("Unknown qname: " + qName);
         }
         data = new StringBuilder();
@@ -123,46 +217,130 @@ public class DungeonXMLHandler extends DefaultHandler {
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        Course course;
-        if (bInstructor) {
-            course = (Course) activityBeingParsed;
-            course.setInstructor(data.toString());
-            bInstructor = false;
-        } else if (bCredit) {
-            course = (Course) activityBeingParsed;
-            course.setCredit(Integer.parseInt(data.toString()));
-            bCredit = false;
-        } else if (bName) {
-            activityBeingParsed.setName(data.toString());
-            bName = false;
-        } else if (bNumber) {
-            course = (Course) activityBeingParsed;
-            course.setNumber(data.toString());
-            bNumber = false;
-        } else if (bLocation) {
-            activityBeingParsed.setLocation(data.toString());
-            bLocation = false;
-        } else if (bMeetingTime) {
-            activityBeingParsed.setMeetingTime(data.toString());
-            bMeetingTime = false;
-        } else if (bMeetingDay) {
-            activityBeingParsed.setMeetingDay(data.toString());
-            bMeetingDay = false;
-        }
-
-        if (qName.equalsIgnoreCase("Students")) {
-            if (studentCount != maxStudents) {
-                System.out.println("wrong number of students parsed, should be " + maxStudents + ", is " + studentCount);
+        // Add attributes to objects being parsed
+        if (bVisible) {
+            if (itemBeingParsed != null) {
+                itemBeingParsed.setVisible(Integer.parseInt(data.toString()));
             }
-        } else if (qName.equalsIgnoreCase("Student")) {
-            studentBeingParsed = null;
-        } else if (qName.equalsIgnoreCase("Activity")) {
-            activityBeingParsed = null;
+            else if (monsterBeingParsed != null) {
+                monsterBeingParsed.setVisible(Integer.parseInt(data.toString()));
+            }
+            else if (playerBeingParsed != null) {
+                playerBeingParsed.setVisible(Integer.parseInt(data.toString()));
+            }
+            else if (roomBeingParsed != null) {
+                roomBeingParsed.setVisible(Integer.parseInt(data.toString()));
+            }
+            else {
+                passageBeingParsed.setVisible(Integer.parseInt(data.toString()));
+            }
+            bVisible = false;
         }
-    }
+        else if (bPosX) {
+            if (itemBeingParsed != null) {
+                itemBeingParsed.setPosX(Integer.parseInt(data.toString()));
+            }
+            else if (monsterBeingParsed != null) {
+                monsterBeingParsed.setPosX(Integer.parseInt(data.toString()));
+            }
+            else if (playerBeingParsed != null) {
+                playerBeingParsed.setPosX(Integer.parseInt(data.toString()));
+            }
+            else if (roomBeingParsed != null) {
+                roomBeingParsed.setPosX(Integer.parseInt(data.toString()));
+            }
+            else {
+                passageBeingParsed.setPosX(Integer.parseInt(data.toString()));
+            }
+            bPosX = false;
+        }
+        else if (bPosY) {
+            if (itemBeingParsed != null) {
+                itemBeingParsed.setPosY(Integer.parseInt(data.toString()));
+            }
+            else if (monsterBeingParsed != null) {
+                monsterBeingParsed.setPosY(Integer.parseInt(data.toString()));
+            }
+            else if (playerBeingParsed != null) {
+                playerBeingParsed.setPosY(Integer.parseInt(data.toString()));
+            }
+            else if (roomBeingParsed != null) {
+                roomBeingParsed.setPosY(Integer.parseInt(data.toString()));
+            }
+            else {
+                passageBeingParsed.setPosY(Integer.parseInt(data.toString()));
+            }
+            bPosY = false;
+        }
+        else if (bWidth) {
+            roomBeingParsed.setWidth(Integer.parseInt(data.toString()));
+            bWidth = false;
+        }
+        else if (bHeight) {
+            roomBeingParsed.setHeight(Integer.parseInt(data.toString()));
+            bHeight = false;
+        }
+        else if (bType) {
+            monsterBeingParsed.setType(data.toString().charAt(0));
+            bType = false;
+        }
+        else if (bHp) {
+            if (monsterBeingParsed != null) {
+                monsterBeingParsed.setHp(Integer.parseInt(data.toString()));
+            }
+            else {
+                playerBeingParsed.setHp(Integer.parseInt(data.toString()));
+            }
+            bHp = false;
+        }
+        else if (bHpMoves) {
+            playerBeingParsed.setHpMoves(Integer.parseInt(data.toString()));
+            bHpMoves = false;
+        }
+        else if (bMaxHit) {
+            if (monsterBeingParsed != null) {
+                monsterBeingParsed.setMaxHit(Integer.parseInt(data.toString()));
+            }
+            else {
+                playerBeingParsed.setMaxHit(Integer.parseInt(data.toString()));
+            }
+            bMaxHit = false;
+        }
+        else if (bActionMessage) {
+            actionBeingParsed.setMessage(data.toString());
+            bActionMessage = false;
+        }
+        else if (bActionIntValue) {
+            actionBeingParsed.setActionIntValue(Integer.parseInt(data.toString()));
+            bActionIntValue = false;
+        }
+        else if (bActionCharValue) {
+            actionBeingParsed.setActionCharValue(data.toString().charAt(0));
+            bActionCharValue = false;
+        }
 
-    private void addStudent(Student student) {
-        students[studentCount++] = student;
+        // Change xBeingParsed to null once finished with parsing
+        if (qName.equalsIgnoreCase("Dungeon")) {
+            assert true;
+        }
+        else if (qName.equalsIgnoreCase("Room")) {
+            roomBeingParsed = null;
+        }
+        else if (qName.equalsIgnoreCase("Passage")) {
+            passageBeingParsed = null;
+        }
+        else if (qName.equalsIgnoreCase("Monster")) {
+            monsterBeingParsed = null;
+        }
+        else if (qName.equalsIgnoreCase("Player")) {
+            playerBeingParsed = null;
+        }
+        else if (qName.equalsIgnoreCase("Scroll") || (qName.equalsIgnoreCase("Armor")) || (qName.equalsIgnoreCase("Sword"))) {
+            itemBeingParsed = null;
+        }
+        else if (qName.equalsIgnoreCase("CreatureAction") || (qName.equalsIgnoreCase("ItemAction"))) {
+            actionBeingParsed = null;
+        }
     }
 
     @Override
@@ -174,23 +352,23 @@ public class DungeonXMLHandler extends DefaultHandler {
         }
     }
 
-    @Override
-    public String toString() {
-        String str = "StudentsXMLHandler\n";
-        str += "   maxStudents: " + maxStudents + "\n";
-        str += "   studentCount: " + studentCount + "\n";
-        for (Student student : students) {
-            str += student.toString() + "\n";
-        }
-        str += "   studentBeingParsed: " + studentBeingParsed.toString() + "\n";
-        str += "   activityBeingParsed: " + activityBeingParsed.toString() + "\n";
-        str += "   bInstructor: " + bInstructor + "\n";
-        str += "   bCredit: " + bInstructor + "\n";
-        str += "   bName: " + bInstructor + "\n";
-        str += "   bNumber: " + bInstructor + "\n";
-        str += "   bLocation: " + bInstructor + "\n";
-        str += "   bMeetingTime: " + bInstructor + "\n";
-        str += "   bMeetingDay: " + bInstructor + "\n";
-        return str;
-    }
+//    @Override
+//    public String toString() {
+//        String str = "StudentsXMLHandler\n";
+//        str += "   maxStudents: " + maxStudents + "\n";
+//        str += "   studentCount: " + studentCount + "\n";
+//        for (Student student : students) {
+//            str += student.toString() + "\n";
+//        }
+//        str += "   studentBeingParsed: " + studentBeingParsed.toString() + "\n";
+//        str += "   activityBeingParsed: " + activityBeingParsed.toString() + "\n";
+//        str += "   bInstructor: " + bInstructor + "\n";
+//        str += "   bCredit: " + bInstructor + "\n";
+//        str += "   bName: " + bInstructor + "\n";
+//        str += "   bNumber: " + bInstructor + "\n";
+//        str += "   bLocation: " + bInstructor + "\n";
+//        str += "   bMeetingTime: " + bInstructor + "\n";
+//        str += "   bMeetingDay: " + bInstructor + "\n";
+//        return str;
+//    }
 }
