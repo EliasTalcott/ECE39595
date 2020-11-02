@@ -25,13 +25,23 @@ public class Dungeon {
         name = _name;
     }
 
+    public String getName() { return name; }
+
     public void setWidth(int _width) { width = _width; }
+
+    public int getWidth() { return width; }
 
     public void setTopHeight(int _topHeight) { topHeight = _topHeight; }
 
+    public int getTopHeight() { return topHeight; }
+
     public void setGameHeight(int _gameHeight) { gameHeight = _gameHeight; }
 
+    public int getGameHeight() { return gameHeight; }
+
     public void setBottomHeight(int _bottomHeight) { bottomHeight = _bottomHeight; }
+
+    public int getBottomHeight() { return bottomHeight; }
 
     public void addRoom(Room room) { rooms.add(room); }
 
