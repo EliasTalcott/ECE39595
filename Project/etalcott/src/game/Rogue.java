@@ -1,5 +1,6 @@
+package src.game;
 
-public class Test implements Runnable {
+public class Rogue implements Runnable {
 
     private static final int DEBUG = 0;
     private boolean isRunning;
@@ -10,7 +11,7 @@ public class Test implements Runnable {
     private static final int WIDTH = 80;
     private static final int HEIGHT = 40;
 
-    public Test(int width, int height) {
+    public Rogue(int width, int height) {
         displayGrid = new ObjectDisplayGrid(width, height);
     }
 
@@ -35,14 +36,14 @@ public class Test implements Runnable {
 
     public static void main(String[] args) throws Exception {
 
-        Test test = new Test(WIDTH, HEIGHT);
-        Thread testThread = new Thread(test);
-        testThread.start();
+        Rogue rogue = new Rogue(WIDTH, HEIGHT);
+        Thread rogueThread = new Thread(rogue);
+        rogueThread.start();
 
-        test.keyStrokePrinter = new Thread(new KeyStrokePrinter(displayGrid));
-        test.keyStrokePrinter.start();
+        rogue.keyStrokePrinter = new Thread(new KeyStrokePrinter(displayGrid));
+        rogue.keyStrokePrinter.start();
 
-        testThread.join();
-        test.keyStrokePrinter.join();
+        rogueThread.join();
+        rogue.keyStrokePrinter.join();
     }
 }
