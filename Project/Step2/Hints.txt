@@ -1,0 +1,4 @@
+As a hint:
+The object display grid should hold all of the objects, and is used to keep track of where they are.  When an object changes at a display grid point, you should update what is displaying on the asciiPanel.
+Rooms should contain all of the creatures and items that are in the room in the .xml file, and when you display a room you should display these items.  The creatures should contain any items that are declared inside of them in the .xml file. 
+Reading day: Wednesday Nov. 4 is a reading day.  We will not have any homework, etc., due next week.  I'll get another assignment out sometime this week or next due the following week. 
