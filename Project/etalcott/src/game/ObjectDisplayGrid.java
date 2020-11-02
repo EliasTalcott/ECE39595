@@ -69,7 +69,7 @@ public class ObjectDisplayGrid extends JFrame implements KeyListener, InputSubje
 
     // we have to override, but we don't use this
     @Override
-    public void keyPressed(KeyEvent even) {
+    public void keyPressed(KeyEvent e) {
     }
 
     // we have to override, but we don't use this
@@ -85,14 +85,6 @@ public class ObjectDisplayGrid extends JFrame implements KeyListener, InputSubje
             }
         }
         terminal.repaint();
-    }
-
-    public void fireUp() {
-        if (terminal.requestFocusInWindow()) {
-            System.out.println(CLASSID + ".ObjectDisplayGrid(...) requestFocusInWindow Succeeded");
-        } else {
-            System.out.println(CLASSID + ".ObjectDisplayGrid(...) requestFocusInWindow FAILED");
-        }
     }
 
     public void addObjectToDisplay(Char ch, int x, int y) {

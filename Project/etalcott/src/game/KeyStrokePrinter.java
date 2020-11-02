@@ -5,14 +5,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class KeyStrokePrinter implements InputObserver, Runnable {
 
-    private static int DEBUG = 1;
+    private static int DEBUG = 0;
     private static String CLASSID = "KeyStrokePrinter";
     private static Queue<Character> inputQueue = null;
     private ObjectDisplayGrid displayGrid;
+    private Rogue rogue;
 
-    public KeyStrokePrinter(ObjectDisplayGrid grid) {
+    public KeyStrokePrinter(ObjectDisplayGrid grid, Rogue r) {
         inputQueue = new ConcurrentLinkedQueue<>();
         displayGrid = grid;
+        rogue = r;
     }
 
     @Override
@@ -49,7 +51,7 @@ public class KeyStrokePrinter implements InputObserver, Runnable {
                     System.out.println("got an X, ending input checking");
                     return false;
                 } else {
-                    System.out.println("character " + ch + " entered on the keyboard");
+                    rogue.move(ch);
                 }
             }
         }
