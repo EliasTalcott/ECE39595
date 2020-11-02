@@ -179,7 +179,7 @@ public class Rogue implements Runnable {
     public static void main(String[] args) throws Exception {
         String fileName;
         if (args.length == 1) {
-            fileName = "../xmlFiles/" + args[0];
+            fileName = "xmlFiles/" + args[0];
         }
         else {
             System.out.println("java game.Rogue <xmlFileName>");
