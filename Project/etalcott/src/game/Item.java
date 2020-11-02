@@ -1,4 +1,4 @@
-package src;
+package game;
 
 import javafx.util.Pair;
 import java.util.ArrayList;

@@ -1,6 +1,4 @@
-package src.game;
-
-import src.*;
+package game;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -181,7 +179,7 @@ public class Rogue implements Runnable {
     public static void main(String[] args) throws Exception {
         String fileName;
         if (args.length == 1) {
-            fileName = "etalcott/xmlFiles/" + args[0];
+            fileName = "../xmlFiles/" + args[0];
         }
         else {
             System.out.println("java game.Rogue <xmlFileName>");

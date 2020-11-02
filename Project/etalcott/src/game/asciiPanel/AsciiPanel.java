@@ -1,4 +1,4 @@
-package src.game.asciiPanel;
+package game.asciiPanel;
 
 import java.awt.Color;
 import java.awt.Dimension;
