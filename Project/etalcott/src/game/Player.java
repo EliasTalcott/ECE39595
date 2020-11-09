@@ -7,6 +7,7 @@ public class Player extends Creature {
 
     public Player(int _room, int _serial) {
         super("Player", _room, _serial);
+        setDisplayChar('@');
     }
 
     public void setHpMoves(int _hpMoves) { hpMoves = _hpMoves; }

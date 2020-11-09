@@ -289,7 +289,7 @@ public class DungeonXMLHandler extends DefaultHandler {
             bHeight = false;
         }
         else if (bType) {
-            monsterBeingParsed.setType(data.toString().charAt(0));
+            monsterBeingParsed.setDisplayChar(data.toString().charAt(0));
             bType = false;
         }
         else if (bHp) {

@@ -6,7 +6,6 @@ public class Creature extends Displayable {
     private String name;
     private int room;
     private int serial;
-    private char type;
     private int hp;
     private int maxHit;
     private ArrayList<CreatureAction> actions;
@@ -31,10 +30,6 @@ public class Creature extends Displayable {
 
     public int getSerial() { return serial; }
 
-    public void setType(char _type) { type = _type; }
-
-    public char getType() { return type; }
-
     public void setHp(int _hp) { hp = _hp; }
 
     public int getHp() { return hp; }
@@ -53,7 +48,6 @@ public class Creature extends Displayable {
         str += "room: " + room + "\n";
         str += "serial: " + serial + "\n";
         str += super.toString();
-        str += "type: " + type + "\n";
         str += "hp: " + hp + "\n";
         str += "maxHit: " + maxHit + "\n";
         str += "actions: " + actions + "\n";
