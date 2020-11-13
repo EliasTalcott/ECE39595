@@ -1,28 +1,27 @@
 package game;
 
-import sun.plugin.net.proxy.PluginAutoProxyHandler;
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Stack;
 
 public class Rogue implements Runnable {
 
     private static final int DEBUG = 0;
-    private boolean isRunning;
-    public static final int FRAMESPERSECOND = 60;
-    public static final int TIMEPERLOOP = 1000000000 / FRAMESPERSECOND;
     private static ObjectDisplayGrid displayGrid;
     private Thread keyStrokePrinter;
     private static int WIDTH = 0;
     private static int TOPHEIGHT = 0;
     private static int GAMEHEIGHT = 0;
     private static int BOTTOMHEIGHT = 0;
+    private static int INVENTORYHEIGHT = 0;
     private static int PLAYER_X;
     private static int PLAYER_Y;
+    private static int score = 0;
+    private static ArrayList<Item> inventory = new ArrayList<>();
     private static ArrayList<Room> rooms;
     private static ArrayList<Passage> passages;
     private Stack<Displayable>[][] objectGrid = null;
@@ -42,6 +41,7 @@ public class Rogue implements Runnable {
             for (int j = 0; j < TOPHEIGHT; j += 1) {
                 objectGrid[i][j] = new Stack();
                 objectGrid[i][j].push(new Char(' '));
+                objectGrid[i][j].push(new Char(' '));
                 displayGrid.addObjectToDisplay(new Char(' '), i, j);
             }
             for (int j = 0; j < GAMEHEIGHT; j += 1) {
@@ -50,11 +50,14 @@ public class Rogue implements Runnable {
                 displayGrid.addObjectToDisplay(new Char(' '), i, j + TOPHEIGHT);
             }
             for (int j = 0; j < BOTTOMHEIGHT; j += 1) {
-                objectGrid[i][j + TOPHEIGHT] = new Stack();
-                objectGrid[i][j + TOPHEIGHT].push(new Char(' '));
+                objectGrid[i][j + TOPHEIGHT + GAMEHEIGHT] = new Stack();
+                objectGrid[i][j + TOPHEIGHT + GAMEHEIGHT].push(new Char(' '));
+                objectGrid[i][j + TOPHEIGHT + GAMEHEIGHT].push(new Char(' '));
                 displayGrid.addObjectToDisplay(new Char(' '), i, j + TOPHEIGHT + GAMEHEIGHT);
             }
         }
+        // Initialize info section
+        setMessageRow("Info: ", TOPHEIGHT + GAMEHEIGHT + INVENTORYHEIGHT);
 
         // Add rooms to game section
         for (Room room: rooms) {
@@ -104,10 +107,11 @@ public class Rogue implements Runnable {
                 int y = creature.getPosY();
                 if (x > 0 && x < room.getWidth() - 1 && y > 0 && y < room.getHeight() - 1) {
                     objectGrid[room.getPosX() + creature.getPosX()][room.getPosY() + creature.getPosY() + TOPHEIGHT].push(creature);
-                    if (creature.getName() == "Player") {
+                    if (creature.getName().equalsIgnoreCase("Player")) {
                         displayGrid.addObjectToDisplay(new Char('@'), room.getPosX() + creature.getPosX(), room.getPosY() + creature.getPosY() + TOPHEIGHT);
                         PLAYER_X = room.getPosX() + creature.getPosX();
                         PLAYER_Y = room.getPosY() + creature.getPosY() + TOPHEIGHT;
+                        printHpScore(creature.getHp());
                     } else {
                         displayGrid.addObjectToDisplay(new Char(creature.getDisplayChar()), room.getPosX() + creature.getPosX(), room.getPosY() + creature.getPosY() + TOPHEIGHT);
                     }
@@ -188,9 +192,9 @@ public class Rogue implements Runnable {
         else return;
 
         // Move available
-        if (Arrays.asList('.', '+', '#').contains(objectGrid[new_x][new_y].peek().getDisplayChar())) {
+        if (Arrays.asList('.', '+', '#', ')', ']', '?').contains(objectGrid[new_x][new_y].peek().getDisplayChar())) {
             // Move player in objectGrid
-            Displayable player = objectGrid[PLAYER_X][PLAYER_Y].pop();
+            Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].pop();
             objectGrid[new_x][new_y].push(player);
             // Update display
             displayGrid.addObjectToDisplay(new Char(objectGrid[PLAYER_X][PLAYER_Y].peek().getDisplayChar()), PLAYER_X, PLAYER_Y);
@@ -201,15 +205,176 @@ public class Rogue implements Runnable {
         }
         // Attack available
         if (Arrays.asList('T', 'H', 'S').contains(objectGrid[new_x][new_y].peek().getDisplayChar())) {
-            attack(new_x, new_y);
+            Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].peek();
+            attack(player, new_x, new_y);
         }
     }
 
-    public void attack(int x, int y) {
-        System.out.format("Attack!! Coordinate to attack: (%d, %d)\n", x, y);
+    public void pick_up() {
+        // Remove player from stack and look beneath for an item
+        Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].pop();
+        if (objectGrid[PLAYER_X][PLAYER_Y].peek() instanceof Item) {
+            // Pick up thing and add to inventory
+            Item item = (Item) objectGrid[PLAYER_X][PLAYER_Y].pop();
+            inventory.add(item);
+        }
+        // Put player back on top of stack
+        objectGrid[PLAYER_X][PLAYER_Y].push(player);
     }
 
-    public static void main(String[] args) throws Exception {
+    public void drop(int item) {
+        // Drop if item exists
+        if (inventory.size() >= item) {
+            // Remove player from stack
+            Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].pop();
+            // Put item on floor and remove from inventory
+            objectGrid[PLAYER_X][PLAYER_Y].add(inventory.remove(item - 1));
+            // Put player back on stack
+            objectGrid[PLAYER_X][PLAYER_Y].push(player);
+        }
+    }
+
+    public void attack(Player player, int x, int y) {
+        Monster monster = null;
+
+        // Find opponent to attack
+        for (Displayable thing : objectGrid[x][y]) {
+            if (thing instanceof Monster) {
+                monster = (Monster) thing;
+                break;
+            }
+        }
+
+        // Attack that boi
+        if (monster != null) {
+            // Player attacks monster
+            Random rn = new Random();
+            int playerHit = rn.nextInt(player.getMaxHit() + 1);
+            int monsterHp = monster.getHp() - playerHit;
+            monster.setHp(monsterHp);
+            printInfo(monster.getName() + " was hit for " + playerHit + " HP");
+            // Handle monster death
+            if (monster.getHp() < 1) {
+                // Monster death actions
+                for (CreatureAction action : monster.getActions()) {
+                    if (action.getType().equalsIgnoreCase("Death")) {
+                        // Remove monster
+                        if (action.getName().equalsIgnoreCase("Remove")) {
+                            removeDisplayable(monster, x, y);
+                        }
+                        // Display monster death message
+                        else if (action.getName().equalsIgnoreCase("YouWin")) {
+                            printInfo(action.getMessage());
+                        }
+                    }
+                }
+            }
+            else {
+                // Monster hit actions
+                for (CreatureAction action : monster.getActions()) {
+                    if (action.getType().equalsIgnoreCase("hit")) {
+                        System.out.print(action);
+                        if (action.getName().equalsIgnoreCase("Teleport")) {
+                            teleport(monster);
+                        }
+                    }
+                }
+                // Monster attacks player
+                int monsterHit = rn.nextInt(monster.getMaxHit() + 1);
+                int playerHp = player.getHp() - monsterHit;
+                player.setHp(playerHp);
+                printHpScore(playerHp);
+                printInfo("Player was hit for " + monsterHit + " HP");
+                // Handle player death
+                if (player.getHp() < 1) {
+                    for (CreatureAction action : player.getActions()) {
+                        if (action.getType().equalsIgnoreCase("Death")) {
+                            // Display player death message and stop input
+                            if (action.getName().equalsIgnoreCase("EndGame") || action.getName().equalsIgnoreCase("YouWin")) {
+                                printInfo(action.getMessage());
+                                displayGrid.setObserve(false);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            System.out.println("Tried to attack imaginary monster..");
+        }
+    }
+
+    public void teleport(Monster monster) {
+        System.out.format("Monster '%s' teleports!\n", monster.getName());
+    }
+
+    public void printHpScore(int hp) {
+        if (hp < 1) {
+            hp = 0;
+        }
+        setMessageRow(String.format("HP: %-3d Score: %d", hp, score), 0);
+    }
+
+    public void printInventory() {
+        StringBuilder inv = new StringBuilder("Pack: ");
+        for (int i = 0; i < inventory.size(); i += 1) {
+            inv.append(i + 1).append(": ").append(inventory.get(i).getName());
+            if (i < inventory.size() - 1) {
+                inv.append(", ");
+            }
+        }
+        setMessageRow(inv.toString(), TOPHEIGHT + GAMEHEIGHT);
+    }
+
+    public void printInfo(String string) {
+        if (string.length() < WIDTH - 6) {
+            // Add message to bottom row of message space and push others up
+            int messageTop = TOPHEIGHT + GAMEHEIGHT + INVENTORYHEIGHT;
+            int messageBottom = TOPHEIGHT + GAMEHEIGHT + BOTTOMHEIGHT - 1;
+            for (int i = messageTop; i < messageBottom; i += 1) {
+                for (int j = 6; j < WIDTH; j += 1) {
+                    removeDisplayable(objectGrid[j][i].peek(), j, i);
+                    addDisplayable(objectGrid[j][i + 1].peek(), j, i);
+                }
+            }
+            setMessageRow("      " + string, messageBottom);
+        }
+        else {
+            System.out.println("String too long!\n");
+        }
+    }
+
+    public void setMessageRow(String string, int row) {
+        // Clear row
+        for (int i = 0; i < WIDTH; i += 1) {
+            removeDisplayable(objectGrid[i][row].peek(), i, row);
+        }
+        // Set row with string
+        for (int i = 0; i < string.length(); i += 1) {
+            addDisplayable(new Char(string.charAt(i)), i, row);
+        }
+        // Fill in rest of row
+        for (int i = string.length(); i < WIDTH; i += 1) {
+            addDisplayable(new Char(' '), i, row);
+        }
+    }
+
+    public void addDisplayable(Displayable displayable, int x, int y) {
+        objectGrid[x][y].push(displayable);
+        displayGrid.addObjectToDisplay(new Char(displayable.getDisplayChar()), x, y);
+    }
+
+    public void removeDisplayable(Displayable displayable, int x, int y) {
+        Displayable removed = objectGrid[x][y].pop();
+        if (removed == displayable) {
+            displayGrid.addObjectToDisplay(new Char(objectGrid[x][y].peek().getDisplayChar()), x, y);
+        }
+        else {
+            System.out.println("Tried to remove wrong object\n");
+        }
+    }
+
+    public static void main(String[] args) {
         String fileName;
         if (args.length == 1) {
             fileName = "etalcott/src/xmlFiles/" + args[0];
@@ -236,6 +401,7 @@ public class Rogue implements Runnable {
             TOPHEIGHT = dungeon.getTopHeight();
             GAMEHEIGHT = dungeon.getGameHeight();
             BOTTOMHEIGHT = dungeon.getBottomHeight();
+            INVENTORYHEIGHT = BOTTOMHEIGHT / 2;
 
             // Get rooms and passages from dungeon
             rooms = dungeon.getRooms();

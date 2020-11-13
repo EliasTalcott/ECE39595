@@ -18,6 +18,7 @@ public class ObjectDisplayGrid extends JFrame implements KeyListener, InputSubje
 
     private static int height;
     private static int width;
+    private boolean observe = true;
 
     public ObjectDisplayGrid(int _width, int _height) {
         width = _width;
@@ -37,6 +38,8 @@ public class ObjectDisplayGrid extends JFrame implements KeyListener, InputSubje
         super.repaint();
     }
 
+    public void setObserve(boolean _observe) { observe = _observe; }
+
     @Override
     public void registerInputObserver(InputObserver observer) {
         if (DEBUG > 0) {
@@ -51,7 +54,9 @@ public class ObjectDisplayGrid extends JFrame implements KeyListener, InputSubje
             System.out.println(CLASSID + ".keyTyped entered" + e.toString());
         }
         KeyEvent keypress = (KeyEvent) e;
-        notifyInputObservers(keypress.getKeyChar());
+        if (observe) {
+            notifyInputObservers(keypress.getKeyChar());
+        }
     }
 
     private void notifyInputObservers(char ch) {

@@ -1,5 +1,6 @@
 package game;
 
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -51,7 +52,26 @@ public class KeyStrokePrinter implements InputObserver, Runnable {
                     System.out.println("got an X, ending input checking");
                     return false;
                 } else {
-                    rogue.move(ch);
+                    if (Arrays.asList('h', 'j', 'k', 'l').contains(ch)) {
+                        rogue.move(ch);
+                    }
+                    else if (ch == 'p') {
+                        rogue.pick_up();
+                    }
+                    else if (ch == 'd') {
+                        // Wait for second input and make sure it is an integer
+                        while (inputQueue.peek() == null) { ; }
+                        char ch2 = inputQueue.poll();
+                        try {
+                            rogue.drop(Integer.parseInt(String.valueOf(ch2)));
+                        }
+                        catch (Exception e) {
+                            // Make sure the program doesn't end if a non-integer is entered after 'd'
+                        }
+                    }
+                    else if (ch == 'i') {
+                        rogue.printInventory();
+                    }
                 }
             }
         }
