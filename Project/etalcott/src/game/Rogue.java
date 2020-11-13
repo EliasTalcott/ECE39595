@@ -273,7 +273,6 @@ public class Rogue implements Runnable {
                 // Monster hit actions
                 for (CreatureAction action : monster.getActions()) {
                     if (action.getType().equalsIgnoreCase("hit")) {
-                        System.out.print(action);
                         if (action.getName().equalsIgnoreCase("Teleport")) {
                             teleport(monster);
                         }
@@ -305,7 +304,7 @@ public class Rogue implements Runnable {
     }
 
     public void teleport(Monster monster) {
-        System.out.format("Monster '%s' teleports!\n", monster.getName());
+        System.out.format("%s teleports!\n", monster.getName());
     }
 
     public void printHpScore(int hp) {
@@ -377,7 +376,7 @@ public class Rogue implements Runnable {
     public static void main(String[] args) {
         String fileName;
         if (args.length == 1) {
-            fileName = "etalcott/src/xmlFiles/" + args[0];
+            fileName = "xmlFiles/" + args[0];
         }
         else {
             System.out.println("java game.Rogue <xmlFileName>");
