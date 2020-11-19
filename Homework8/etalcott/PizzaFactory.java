@@ -1,4 +1,5 @@
 import java.util.*;
+import java.lang.reflect.*;
 
 public class PizzaFactory {
 
@@ -29,7 +30,7 @@ public class PizzaFactory {
       Pizza pizza = null;
       String pizzaClassName = pizzaMap.get(pizzaName);
       if (pizzaClassName == null) {
-         System.out.println("Pizza "+pizzaName+" appears to be mispelled");
+         System.out.println("Pizza "+pizzaName+" appears to be misspelled");
       } else {
          try {
             /*
@@ -43,6 +44,9 @@ public class PizzaFactory {
              "nycheese", to the actual class name, i.e., "NYStyleCheese".  You
              will use it to get the name to pass to Class.forName(String).
             */
+            Class<?> cls = Class.forName(pizzaClassName);
+            Constructor<?> constructor = cls.getConstructor(PizzaIngredients.class);
+            pizza = (Pizza) constructor.newInstance(ingredients);
          } catch (Exception e) {
             System.out.println("Exception in PizzaFactory: "+pizzaName);
             e.printStackTrace( );
