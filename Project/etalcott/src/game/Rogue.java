@@ -278,7 +278,6 @@ public class Rogue implements Runnable {
     public void hallucinate() {
         Random rn = new Random();
         // Iterate through whole game area and replace each displayable with another valid character
-        System.out.format("Doing some hallucinating: %d!\n", hallucinate_count);
         for (int i = 0; i < WIDTH; i++) {
             for (int j = TOPHEIGHT; j < TOPHEIGHT + GAMEHEIGHT; j++) {
                 for (int k = 0; k < validChars.size(); k++) {
@@ -294,7 +293,6 @@ public class Rogue implements Runnable {
 
     public void stop_hallucinating() {
         // Iterate through whole game area and set the correct display character for each position
-        System.out.format("Doing some hallucinating: %d!\n", hallucinate_count);
         for (int i = 0; i < WIDTH; i++) {
             for (int j = TOPHEIGHT; j < TOPHEIGHT + GAMEHEIGHT; j++) {
                 displayGrid.addObjectToDisplay(new Char(objectGrid[i][j].peek().getDisplayChar()), i, j);
