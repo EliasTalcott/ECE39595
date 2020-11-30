@@ -663,7 +663,7 @@ public class Rogue implements Runnable {
     public static void main(String[] args) {
         String fileName;
         if (args.length == 1) {
-            fileName = "etalcott/src/xmlFiles/" + args[0];
+            fileName = "xmlFiles/" + args[0];
         }
         else {
             System.out.println("java game.Rogue <xmlFileName>");
