@@ -30,7 +30,6 @@ public class KeyStrokePrinter implements InputObserver, Runnable {
         try {
             Thread.sleep(20);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -60,7 +59,7 @@ public class KeyStrokePrinter implements InputObserver, Runnable {
                     }
                     else if (ch == 'd') {
                         // Wait for second input and make sure it is an integer
-                        while (inputQueue.peek() == null) { ; }
+                        while (inputQueue.peek() == null) { }
                         char ch2 = inputQueue.poll();
                         try {
                             rogue.drop(Integer.parseInt(String.valueOf(ch2)));
@@ -71,6 +70,57 @@ public class KeyStrokePrinter implements InputObserver, Runnable {
                     }
                     else if (ch == 'i') {
                         rogue.printInventory();
+                    }
+                    else if (ch == 'c') {
+                        rogue.remove_armor();
+                    }
+                    else if (ch == 'T') {
+                        // Wait for second input and make sure it is an integer
+                        while (inputQueue.peek() == null) { }
+                        char ch2 = inputQueue.poll();
+                        try {
+                            rogue.equip_weapon(Integer.parseInt(String.valueOf(ch2)));
+                        }
+                        catch (Exception e) {
+                            // Make sure the program doesn't end if a non-integer is entered after 'T'
+                        }
+                    }
+                    else if (ch == 'w') {
+                        // Wait for second input and make sure it is an integer
+                        while (inputQueue.peek() == null) { }
+                        char ch2 = inputQueue.poll();
+                        try {
+                            rogue.equip_armor(Integer.parseInt(String.valueOf(ch2)));
+                        }
+                        catch (Exception e) {
+                            // Make sure the program doesn't end if a non-integer is entered after 'w'
+                        }
+                    }
+                    else if (ch == 'r') {
+                        // Wait for second input and make sure it is an integer
+                        while (inputQueue.peek() == null) { }
+                        char ch2 = inputQueue.poll();
+                        try {
+                            rogue.read_scroll(Integer.parseInt(String.valueOf(ch2)));
+                        }
+                        catch (Exception e) {
+                            // Make sure the program doesn't end if a non-integer is entered after 'r'
+                        }
+                    }
+                    else if (ch == 'E') {
+                        // End game
+                        while (inputQueue.peek() == null) { }
+                        char ch2 = inputQueue.poll();
+                        rogue.endGame(ch2);
+                    }
+                    else if (ch == '?') {
+                        rogue.printCommands();
+                    }
+                    else if (ch == 'H') {
+                        // Help for specific command
+                        while (inputQueue.peek() == null) { }
+                        char ch2 = inputQueue.poll();
+                        rogue.printHelp(ch2);
                     }
                 }
             }

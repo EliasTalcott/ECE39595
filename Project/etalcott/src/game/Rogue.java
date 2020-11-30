@@ -21,9 +21,13 @@ public class Rogue implements Runnable {
     private static int PLAYER_X;
     private static int PLAYER_Y;
     private static int score = 0;
+    private static int moves = 0;
     private static ArrayList<Item> inventory = new ArrayList<>();
     private static ArrayList<Room> rooms;
     private static ArrayList<Passage> passages;
+    private static Room playerRoom;
+    private static int hallucinate_count = 0;
+    private static ArrayList<Char> validChars = new ArrayList<>();
     private Stack<Displayable>[][] objectGrid = null;
 
     public Rogue(int width, int height) {
@@ -43,17 +47,20 @@ public class Rogue implements Runnable {
                 objectGrid[i][j].push(new Char(' '));
                 objectGrid[i][j].push(new Char(' '));
                 displayGrid.addObjectToDisplay(new Char(' '), i, j);
+                displayGrid.repaint();
             }
             for (int j = 0; j < GAMEHEIGHT; j += 1) {
                 objectGrid[i][j + TOPHEIGHT] = new Stack();
                 objectGrid[i][j + TOPHEIGHT].push(new Char(' '));
                 displayGrid.addObjectToDisplay(new Char(' '), i, j + TOPHEIGHT);
+                displayGrid.repaint();
             }
             for (int j = 0; j < BOTTOMHEIGHT; j += 1) {
                 objectGrid[i][j + TOPHEIGHT + GAMEHEIGHT] = new Stack();
                 objectGrid[i][j + TOPHEIGHT + GAMEHEIGHT].push(new Char(' '));
                 objectGrid[i][j + TOPHEIGHT + GAMEHEIGHT].push(new Char(' '));
                 displayGrid.addObjectToDisplay(new Char(' '), i, j + TOPHEIGHT + GAMEHEIGHT);
+                displayGrid.repaint();
             }
         }
         // Initialize info section
@@ -66,20 +73,25 @@ public class Rogue implements Runnable {
                 objectGrid[i][room.getPosY() + TOPHEIGHT].push(new Char('X'));
                 objectGrid[i][room.getPosY() + room.getHeight() + TOPHEIGHT - 1].push(new Char('X'));
                 displayGrid.addObjectToDisplay(new Char('X'), i, room.getPosY() + TOPHEIGHT);
+                displayGrid.repaint();
                 displayGrid.addObjectToDisplay(new Char('X'), i, room.getPosY() + room.getHeight() + TOPHEIGHT - 1);
+                displayGrid.repaint();
             }
             // Sides of room
             for (int i = room.getPosY(); i < room.getPosY() + room.getHeight(); i++) {
                 objectGrid[room.getPosX()][i + TOPHEIGHT].push(new Char('X'));
                 objectGrid[room.getPosX() + room.getWidth() - 1][i + TOPHEIGHT].push(new Char('X'));
                 displayGrid.addObjectToDisplay(new Char('X'), room.getPosX(), i + TOPHEIGHT);
+                displayGrid.repaint();
                 displayGrid.addObjectToDisplay(new Char('X'), room.getPosX() + room.getWidth() - 1, i + TOPHEIGHT);
+                displayGrid.repaint();
             }
             // Interior of room
             for (int i = room.getPosX() + 1; i < room.getPosX() + room.getWidth() - 1; i++) {
                 for (int j = room.getPosY() + 1; j < room.getPosY() + room.getHeight() - 1; j++) {
                     objectGrid[i][j + TOPHEIGHT].push(new Char('.'));
                     displayGrid.addObjectToDisplay(new Char('.'), i, j + TOPHEIGHT);
+                    displayGrid.repaint();
                 }
             }
 
@@ -92,10 +104,13 @@ public class Rogue implements Runnable {
                     objectGrid[room.getPosX() + item.getPosX()][room.getPosY() + item.getPosY() + TOPHEIGHT].push(item);
                     if (item.getName().contains("Scroll")) {
                         displayGrid.addObjectToDisplay(new Char('?'), room.getPosX() + item.getPosX(), room.getPosY() + item.getPosY() + TOPHEIGHT);
+                        displayGrid.repaint();
                     } else if (item.getName().contains("Sword")) {
                         displayGrid.addObjectToDisplay(new Char(')'), room.getPosX() + item.getPosX(), room.getPosY() + item.getPosY() + TOPHEIGHT);
+                        displayGrid.repaint();
                     } else if (item.getName().contains("Armor")) {
                         displayGrid.addObjectToDisplay(new Char(']'), room.getPosX() + item.getPosX(), room.getPosY() + item.getPosY() + TOPHEIGHT);
+                        displayGrid.repaint();
                     }
                 }
             }
@@ -109,13 +124,25 @@ public class Rogue implements Runnable {
                     objectGrid[room.getPosX() + creature.getPosX()][room.getPosY() + creature.getPosY() + TOPHEIGHT].push(creature);
                     if (creature.getName().equalsIgnoreCase("Player")) {
                         displayGrid.addObjectToDisplay(new Char('@'), room.getPosX() + creature.getPosX(), room.getPosY() + creature.getPosY() + TOPHEIGHT);
+                        displayGrid.repaint();
                         PLAYER_X = room.getPosX() + creature.getPosX();
                         PLAYER_Y = room.getPosY() + creature.getPosY() + TOPHEIGHT;
                         printHpScore(creature.getHp());
+                        playerRoom = room;
                     } else {
                         displayGrid.addObjectToDisplay(new Char(creature.getDisplayChar()), room.getPosX() + creature.getPosX(), room.getPosY() + creature.getPosY() + TOPHEIGHT);
+                        displayGrid.repaint();
                     }
                 }
+            }
+        }
+
+        // Add items owned by player to inventory
+        Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].peek();
+        for (Item item : playerRoom.getItems()) {
+            if (item.getOwner() == player) {
+                inventory.add(item);
+                item.setOwner(null);
             }
         }
 
@@ -146,6 +173,8 @@ public class Rogue implements Runnable {
                     for (int j = x; j <= next_x; j++) {
                         objectGrid[j][y + TOPHEIGHT].push(new Char('#'));
                         displayGrid.addObjectToDisplay(new Char('#'), j, y + TOPHEIGHT);
+                        displayGrid.repaint();
+
                     }
                 }
                 // Vertical section
@@ -153,6 +182,8 @@ public class Rogue implements Runnable {
                     for (int j = y; j <= next_y; j++) {
                         objectGrid[x][j + TOPHEIGHT].push(new Char('#'));
                         displayGrid.addObjectToDisplay(new Char('#'), x, j + TOPHEIGHT);
+                        displayGrid.repaint();
+
                     }
                 }
             }
@@ -161,10 +192,12 @@ public class Rogue implements Runnable {
             int y = yPos.get(0);
             objectGrid[x][y + TOPHEIGHT].push(new Char('+'));
             displayGrid.addObjectToDisplay(new Char('+'), x, y + TOPHEIGHT);
+            displayGrid.repaint();
             x = xPos.get(len - 1);
             y = yPos.get(len - 1);
             objectGrid[x][y + TOPHEIGHT].push(new Char('+'));
             displayGrid.addObjectToDisplay(new Char('+'), x, y + TOPHEIGHT);
+            displayGrid.repaint();
         }
 
         while(true) {
@@ -179,6 +212,24 @@ public class Rogue implements Runnable {
     public void move(char ch) {
         int new_x = PLAYER_X;
         int new_y = PLAYER_Y;
+        moves += 1;
+        // Check if hpMoves threshold reached
+        Player play = (Player) objectGrid[PLAYER_X][PLAYER_Y].peek();
+        if (moves >= play.getHpMoves()) {
+            int hp = play.getHp() + 1;
+            play.setHp(hp);
+            printHpScore(hp);
+            moves = 0;
+        }
+
+        // Check if player is hallucinating
+        if (hallucinate_count > 0) {
+            hallucinate();
+            hallucinate_count -= 1;
+            if (hallucinate_count == 0) {
+                stop_hallucinating();
+            }
+        }
 
         // Move up
         if (ch == 'k') { new_y -= 1; }
@@ -198,7 +249,9 @@ public class Rogue implements Runnable {
             objectGrid[new_x][new_y].push(player);
             // Update display
             displayGrid.addObjectToDisplay(new Char(objectGrid[PLAYER_X][PLAYER_Y].peek().getDisplayChar()), PLAYER_X, PLAYER_Y);
+            displayGrid.repaint();
             displayGrid.addObjectToDisplay(new Char(objectGrid[new_x][new_y].peek().getDisplayChar()), new_x, new_y);
+            displayGrid.repaint();
             // Update player location
             PLAYER_X = new_x;
             PLAYER_Y = new_y;
@@ -222,15 +275,168 @@ public class Rogue implements Runnable {
         objectGrid[PLAYER_X][PLAYER_Y].push(player);
     }
 
+    public void hallucinate() {
+        Random rn = new Random();
+        // Iterate through whole game area and replace each displayable with another valid character
+        System.out.format("Doing some hallucinating: %d!\n", hallucinate_count);
+        for (int i = 0; i < WIDTH; i++) {
+            for (int j = TOPHEIGHT; j < TOPHEIGHT + GAMEHEIGHT; j++) {
+                for (int k = 0; k < validChars.size(); k++) {
+                    if (validChars.get(k).getChar() == objectGrid[i][j].peek().getDisplayChar()) {
+                        displayGrid.addObjectToDisplay(validChars.get(rn.nextInt(validChars.size())), i, j);
+                        displayGrid.repaint();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void stop_hallucinating() {
+        // Iterate through whole game area and set the correct display character for each position
+        System.out.format("Doing some hallucinating: %d!\n", hallucinate_count);
+        for (int i = 0; i < WIDTH; i++) {
+            for (int j = TOPHEIGHT; j < TOPHEIGHT + GAMEHEIGHT; j++) {
+                displayGrid.addObjectToDisplay(new Char(objectGrid[i][j].peek().getDisplayChar()), i, j);
+                displayGrid.repaint();
+            }
+        }
+    }
+
     public void drop(int item) {
         // Drop if item exists
         if (inventory.size() >= item) {
             // Remove player from stack
             Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].pop();
             // Put item on floor and remove from inventory
-            objectGrid[PLAYER_X][PLAYER_Y].add(inventory.remove(item - 1));
+            Item inv_item = inventory.remove(item - 1);
+            if (inv_item.getOwner() == player && inv_item instanceof Sword) {
+                inv_item.setName(inv_item.getName().substring(0, inv_item.getName().length() - 4));
+                inv_item.setOwner(null);
+                player.setWeapon(null);
+            }
+            else if (inv_item.getOwner() == player && inv_item instanceof Armor) {
+                inv_item.setName(inv_item.getName().substring(0, inv_item.getName().length() - 4));
+                inv_item.setOwner(null);
+                player.setArmor(null);
+            }
+            objectGrid[PLAYER_X][PLAYER_Y].add(inv_item);
             // Put player back on stack
             objectGrid[PLAYER_X][PLAYER_Y].push(player);
+        }
+        else {
+            printInfo("Item " + item + " does not exist!");
+        }
+    }
+
+    public void equip_weapon(int item) {
+        Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].peek();
+        if (inventory.size() < item) {
+            printInfo("Item " + item + " does not exist!");
+        }
+        else if (inventory.get(item - 1) instanceof Sword) {
+            remove_weapon();
+            Sword sword = (Sword) inventory.get(item - 1);
+            sword.setName(sword.getName() + " (w)");
+            sword.setOwner(player);
+            player.setWeapon(sword);
+        }
+        else {
+            printInfo("Item " + item + " is not a sword!");
+        }
+    }
+
+    public void remove_weapon() {
+        Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].peek();
+        for (Item item : inventory) {
+            if (item.getOwner() == player && item instanceof Sword) {
+                item.setName(item.getName().substring(0, item.getName().length() - 4));
+                item.setOwner(null);
+                player.setWeapon(null);
+                break;
+            }
+        }
+    }
+
+    public void equip_armor(int item) {
+        Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].peek();
+        if (inventory.size() < item) {
+            printInfo("Item " + item + " does not exist!");
+        }
+        else if (inventory.get(item - 1) instanceof Armor) {
+            if (player.getArmor() != null){
+                remove_armor();
+            }
+            Armor armor = (Armor) inventory.get(item - 1);
+            armor.setName(armor.getName() + " (a)");
+            armor.setOwner(player);
+            player.setArmor(armor);
+        }
+        else {
+            printInfo("Item " + item + " is not armor!");
+        }
+    }
+
+    public void remove_armor() {
+        Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].peek();
+        for (Item item : inventory) {
+            if (item.getOwner() == player && item instanceof Armor) {
+                item.setName(item.getName().substring(0, item.getName().length() - 4));
+                item.setOwner(null);
+                player.setArmor(null);
+                return;
+            }
+        }
+        printInfo("No armor was equipped.");
+    }
+
+    public void read_scroll(int item) {
+        Player player = (Player) objectGrid[PLAYER_X][PLAYER_Y].peek();
+        if (inventory.size() < item) {
+            printInfo("Item " + item + " does not exist!");
+        }
+        else if (inventory.get(item - 1) instanceof Scroll) {
+            Scroll scroll = (Scroll) inventory.remove(item - 1);
+            ArrayList<ItemAction> actions = scroll.getActions();
+            for (Action action : actions) {
+                if (action.getName().equalsIgnoreCase("hallucinate")) {
+                    hallucinate_count = action.getActionIntValue();
+                    printInfo("Hallucinations will last for " + action.getActionIntValue() + " moves.");
+                }
+                else if (action.getActionCharValue() == 'a') {
+                    Armor armor = player.getArmor();
+                    if (armor != null) {
+                        armor.setItemIntValue(armor.getItemIntValue() + action.getActionIntValue());
+                        if (action.getActionIntValue() < 0) {
+                            printInfo(armor.getName() + " cursed for " + action.getActionIntValue() + " points!");
+                        }
+                        else {
+                            printInfo(armor.getName() + " blessed for " + action.getActionIntValue() + " points!");
+                        }
+                    }
+                    else {
+                        printInfo(action.getName() + " had no effect because no armor is equipped.");
+                    }
+                }
+                else if (action.getActionCharValue() == 'w') {
+                    Sword sword = player.getWeapon();
+                    if (sword != null) {
+                        sword.setItemIntValue(sword.getItemIntValue() + action.getActionIntValue());
+                        if (action.getActionIntValue() < 0) {
+                            printInfo(sword.getName() + " cursed for " + action.getActionIntValue() + " points!");
+                        }
+                        else {
+                            printInfo(sword.getName() + " blessed for " + action.getActionIntValue() + " points!");
+                        }
+                    }
+                    else {
+                        printInfo(action.getName() + " had no effect because no sword is equipped.");
+                    }
+                }
+            }
+        }
+        else {
+            printInfo("Item " + item + " is not a scroll!");
         }
     }
 
@@ -250,6 +456,13 @@ public class Rogue implements Runnable {
             // Player attacks monster
             Random rn = new Random();
             int playerHit = rn.nextInt(player.getMaxHit() + 1);
+            // Add sword value to calculated player hit (make sure hit doesn't go below 0)
+            if (player.getWeapon() != null) {
+                playerHit += player.getWeapon().getItemIntValue();
+                if (playerHit < 0) {
+                    playerHit = 0;
+                }
+            }
             int monsterHp = monster.getHp() - playerHit;
             monster.setHp(monsterHp);
             printInfo(monster.getName() + " was hit for " + playerHit + " HP");
@@ -274,12 +487,20 @@ public class Rogue implements Runnable {
                 for (CreatureAction action : monster.getActions()) {
                     if (action.getType().equalsIgnoreCase("hit")) {
                         if (action.getName().equalsIgnoreCase("Teleport")) {
-                            teleport(monster);
+                            printInfo(action.getMessage());
+                            teleport(monster, x, y);
                         }
                     }
                 }
                 // Monster attacks player
                 int monsterHit = rn.nextInt(monster.getMaxHit() + 1);
+                // Subtract armor value from hit (make sure hit doesn't go below 0)
+                if (player.getArmor() != null) {
+                    monsterHit -= player.getArmor().getItemIntValue();
+                    if (monsterHit < 0) {
+                        monsterHit = 0;
+                    }
+                }
                 int playerHp = player.getHp() - monsterHit;
                 player.setHp(playerHp);
                 printHpScore(playerHp);
@@ -293,6 +514,22 @@ public class Rogue implements Runnable {
                                 printInfo(action.getMessage());
                                 displayGrid.setObserve(false);
                             }
+                            else if (action.getName().equalsIgnoreCase("ChangeDisplayType") || action.getName().equalsIgnoreCase("ChangeDisplayedType")) {
+                                removeDisplayable(player, PLAYER_X, PLAYER_Y);
+                                player.setDisplayChar(action.getActionCharValue());
+                                addDisplayable(player, PLAYER_X, PLAYER_Y);
+                            }
+                        }
+                    }
+                }
+                // Player hit actions
+                else {
+                    for (CreatureAction action : player.getActions()) {
+                        if (action.getName().equalsIgnoreCase("DropPack")) {
+                            if (inventory.size() > 0) {
+                                printInfo(action.getMessage());
+                                drop(1);
+                            }
                         }
                     }
                 }
@@ -303,8 +540,22 @@ public class Rogue implements Runnable {
         }
     }
 
-    public void teleport(Monster monster) {
-        System.out.format("%s teleports!\n", monster.getName());
+    public void teleport(Monster monster, int x, int y) {
+        // Get valid coordinates to teleport to
+        Random rn = new Random();
+        int new_x, new_y;
+        Displayable thing;
+        while(true) {
+            new_x = rn.nextInt(WIDTH - 1);
+            new_y = rn.nextInt(GAMEHEIGHT - 1) + TOPHEIGHT;
+            thing = objectGrid[new_x][new_y].peek();
+            if (thing instanceof Item || (thing instanceof Char && (thing.getDisplayChar() == '.' || thing.getDisplayChar() == '#'))) {
+                break;
+            }
+        }
+        // Move monster to new coordinates
+        removeDisplayable(monster, x, y);
+        addDisplayable(monster, new_x, new_y);
     }
 
     public void printHpScore(int hp) {
@@ -318,11 +569,45 @@ public class Rogue implements Runnable {
         StringBuilder inv = new StringBuilder("Pack: ");
         for (int i = 0; i < inventory.size(); i += 1) {
             inv.append(i + 1).append(": ").append(inventory.get(i).getName());
+            if (inventory.get(i) instanceof Sword || inventory.get(i) instanceof Armor) {
+                inv.append(" (").append(inventory.get(i).getItemIntValue()).append(")");
+            }
             if (i < inventory.size() - 1) {
                 inv.append(", ");
             }
         }
         setMessageRow(inv.toString(), TOPHEIGHT + GAMEHEIGHT);
+    }
+
+    public void printCommands() {
+        printInfo("h,l,k,j,i,?,H,c,d,p,r,T,w,E. H <cmd> for more info");
+    }
+
+    public void printHelp(char ch) {
+        switch (ch) {
+            case 'h':
+            case 'j':
+            case 'k':
+            case 'l': printInfo("h: move left, l: move right, k: move up, j: move down"); break;
+            case 'i': printInfo("i: show pack contents"); break;
+            case '?': printInfo("?: show all commands"); break;
+            case 'H': printInfo("H<command>: show more detailed info about <command>"); break;
+            case 'c': printInfo("c: take off armor"); break;
+            case 'd': printInfo("d<item number>: drop <item number> item from pack"); break;
+            case 'p': printInfo("p: pick up item and put into pack"); break;
+            case 'r': printInfo("r<item number>: read <item number> scroll from pack"); break;
+            case 'T': printInfo("T<item number>: equip <item number> sword from pack"); break;
+            case 'w': printInfo("w<item number>: equip <item number> armor from pack"); break;
+            case 'E': printInfo("E<char>: end game if <char> is Y or y"); break;
+            default: break;
+        }
+    }
+
+    public void endGame(char ch) {
+        if (Arrays.asList('Y', 'y').contains(ch)) {
+            printInfo("Game ended by player via E command.");
+            displayGrid.setObserve(false);
+        }
     }
 
     public void printInfo(String string) {
@@ -361,12 +646,14 @@ public class Rogue implements Runnable {
     public void addDisplayable(Displayable displayable, int x, int y) {
         objectGrid[x][y].push(displayable);
         displayGrid.addObjectToDisplay(new Char(displayable.getDisplayChar()), x, y);
+        displayGrid.repaint();
     }
 
     public void removeDisplayable(Displayable displayable, int x, int y) {
         Displayable removed = objectGrid[x][y].pop();
         if (removed == displayable) {
             displayGrid.addObjectToDisplay(new Char(objectGrid[x][y].peek().getDisplayChar()), x, y);
+            displayGrid.repaint();
         }
         else {
             System.out.println("Tried to remove wrong object\n");
@@ -376,7 +663,7 @@ public class Rogue implements Runnable {
     public static void main(String[] args) {
         String fileName;
         if (args.length == 1) {
-            fileName = "xmlFiles/" + args[0];
+            fileName = "etalcott/src/xmlFiles/" + args[0];
         }
         else {
             System.out.println("java game.Rogue <xmlFileName>");
@@ -405,6 +692,19 @@ public class Rogue implements Runnable {
             // Get rooms and passages from dungeon
             rooms = dungeon.getRooms();
             passages = dungeon.getPassages();
+
+            // Initialize valid display characters
+            validChars.add(new Char('X'));
+            validChars.add(new Char('.'));
+            validChars.add(new Char('#'));
+            validChars.add(new Char('+'));
+            validChars.add(new Char('T'));
+            validChars.add(new Char('H'));
+            validChars.add(new Char('S'));
+            validChars.add(new Char('@'));
+            validChars.add(new Char('?'));
+            validChars.add(new Char(']'));
+            validChars.add(new Char(')'));
 
             Rogue rogue = new Rogue(WIDTH, TOPHEIGHT + GAMEHEIGHT + BOTTOMHEIGHT);
             Thread rogueThread = new Thread(rogue);

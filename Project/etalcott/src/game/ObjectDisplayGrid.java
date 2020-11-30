@@ -29,7 +29,7 @@ public class ObjectDisplayGrid extends JFrame implements KeyListener, InputSubje
         objectGrid = new Char[width][height];
 
         super.add(terminal);
-        super.setSize(width * 9, height * 16);
+        super.setSize(width * 10, height * 17);
         super.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         super.setVisible(true);
         terminal.setVisible(true);

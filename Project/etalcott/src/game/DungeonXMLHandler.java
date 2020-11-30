@@ -132,6 +132,9 @@ public class DungeonXMLHandler extends DefaultHandler {
             Scroll scroll = new Scroll(name, room, serial);
             roomBeingParsed.addItem(scroll);
             itemBeingParsed = scroll;
+            if (playerBeingParsed != null) {
+                scroll.setOwner(playerBeingParsed);
+            }
         }
         else if (qName.equalsIgnoreCase("Armor")) {
             String name = attributes.getValue("name");
@@ -140,6 +143,9 @@ public class DungeonXMLHandler extends DefaultHandler {
             Armor armor = new Armor(name, room, serial);
             roomBeingParsed.addItem(armor);
             itemBeingParsed = armor;
+            if (playerBeingParsed != null) {
+                armor.setOwner(playerBeingParsed);
+            }
         }
         else if (qName.equalsIgnoreCase("Sword")) {
             String name = attributes.getValue("name");
@@ -148,6 +154,9 @@ public class DungeonXMLHandler extends DefaultHandler {
             Sword sword = new Sword(name, room, serial);
             roomBeingParsed.addItem(sword);
             itemBeingParsed = sword;
+            if (playerBeingParsed != null) {
+                sword.setOwner(playerBeingParsed);
+            }
         }
         // Actions
         else if (qName.equalsIgnoreCase("CreatureAction")) {
@@ -247,6 +256,10 @@ public class DungeonXMLHandler extends DefaultHandler {
         else if (bPosX) {
             if (itemBeingParsed != null) {
                 itemBeingParsed.setPosX(Integer.parseInt(data.toString()));
+                // If item is initially in player inventory, make position invalid
+                if (playerBeingParsed != null) {
+                    itemBeingParsed.setPosX(0);
+                }
             }
             else if (monsterBeingParsed != null) {
                 monsterBeingParsed.setPosX(Integer.parseInt(data.toString()));
@@ -265,6 +278,10 @@ public class DungeonXMLHandler extends DefaultHandler {
         else if (bPosY) {
             if (itemBeingParsed != null) {
                 itemBeingParsed.setPosY(Integer.parseInt(data.toString()));
+                // If item is initially in player inventory, make position invalid
+                if (playerBeingParsed != null) {
+                    itemBeingParsed.setPosY(0);
+                }
             }
             else if (monsterBeingParsed != null) {
                 monsterBeingParsed.setPosY(Integer.parseInt(data.toString()));
