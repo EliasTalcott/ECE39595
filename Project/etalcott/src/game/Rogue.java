@@ -398,7 +398,7 @@ public class Rogue implements Runnable {
             ArrayList<ItemAction> actions = scroll.getActions();
             for (Action action : actions) {
                 if (action.getName().equalsIgnoreCase("hallucinate")) {
-                    hallucinate_count = action.getActionIntValue();
+                    hallucinate_count = action.getActionIntValue() + 1;
                     printInfo("Hallucinations will last for " + action.getActionIntValue() + " moves.");
                 }
                 else if (action.getActionCharValue() == 'a') {
